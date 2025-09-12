@@ -1,8 +1,9 @@
 import numpy as np
 from collections import defaultdict
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Dict, Any, Optional
 from aimakerspace.openai_utils.embedding import EmbeddingModel
 import asyncio
+from datetime import datetime
 
 
 def cosine_similarity(vector_a: np.array, vector_b: np.array) -> float:
@@ -16,22 +17,44 @@ def cosine_similarity(vector_a: np.array, vector_b: np.array) -> float:
 class VectorDatabase:
     def __init__(self, embedding_model: EmbeddingModel = None):
         self.vectors = defaultdict(np.array)
-        self.embedding_model = embedding_model or EmbeddingModel()
+        self.metadata = defaultdict(dict)  # Store metadata for each vector
+        self.embedding_model = embedding_model  # Allow None for basic testing
 
-    def insert(self, key: str, vector: np.array) -> None:
+    def insert(self, key: str, vector: np.array, metadata: Optional[Dict[str, Any]] = None) -> None:
         self.vectors[key] = vector
+        if metadata is None:
+            metadata = {}
+        # Add timestamp if not provided
+        if 'timestamp' not in metadata:
+            metadata['timestamp'] = datetime.now().isoformat()
+        self.metadata[key] = metadata
 
     def search(
         self,
         query_vector: np.array,
         k: int,
         distance_measure: Callable = cosine_similarity,
-    ) -> List[Tuple[str, float]]:
+        filter_criteria: Optional[Dict[str, Any]] = None,
+        return_metadata: bool = False,
+    ):
+        # Filter vectors based on metadata criteria
+        filtered_items = []
+        for key, vector in self.vectors.items():
+            if filter_criteria:
+                metadata = self.metadata.get(key, {})
+                if not self._matches_criteria(metadata, filter_criteria):
+                    continue
+            filtered_items.append((key, vector))
+        
         scores = [
             (key, distance_measure(query_vector, vector))
-            for key, vector in self.vectors.items()
+            for key, vector in filtered_items
         ]
-        return sorted(scores, key=lambda x: x[1], reverse=True)[:k]
+        sorted_scores = sorted(scores, key=lambda x: x[1], reverse=True)[:k]
+        
+        if return_metadata:
+            return [(key, score, self.metadata.get(key, {})) for key, score in sorted_scores]
+        return sorted_scores
 
     def search_by_text(
         self,
@@ -39,18 +62,49 @@ class VectorDatabase:
         k: int,
         distance_measure: Callable = cosine_similarity,
         return_as_text: bool = False,
-    ) -> List[Tuple[str, float]]:
+        filter_criteria: Optional[Dict[str, Any]] = None,
+        return_metadata: bool = False,
+    ):
+        if self.embedding_model is None:
+            raise ValueError("Embedding model not set. Cannot search by text without an embedding model.")
+        
         query_vector = self.embedding_model.get_embedding(query_text)
-        results = self.search(query_vector, k, distance_measure)
-        return [result[0] for result in results] if return_as_text else results
+        results = self.search(query_vector, k, distance_measure, filter_criteria, return_metadata)
+        
+        if return_as_text:
+            return [result[0] for result in results]
+        return results
 
-    def retrieve_from_key(self, key: str) -> np.array:
-        return self.vectors.get(key, None)
+    def retrieve_from_key(self, key: str, include_metadata: bool = False):
+        vector = self.vectors.get(key, None)
+        if include_metadata:
+            metadata = self.metadata.get(key, {})
+            return (vector, metadata) if vector is not None else (None, {})
+        return vector
 
-    async def abuild_from_list(self, list_of_text: List[str]) -> "VectorDatabase":
+    def _matches_criteria(self, metadata: Dict[str, Any], criteria: Dict[str, Any]) -> bool:
+        """Check if metadata matches the filter criteria."""
+        for key, value in criteria.items():
+            if key not in metadata:
+                return False
+            if isinstance(value, dict) and "$in" in value:
+                if metadata[key] not in value["$in"]:
+                    return False
+            elif isinstance(value, dict) and "$eq" in value:
+                if metadata[key] != value["$eq"]:
+                    return False
+            elif metadata[key] != value:
+                return False
+        return True
+    
+    async def abuild_from_list(self, list_of_text: List[str], metadata_list: Optional[List[Dict[str, Any]]] = None) -> "VectorDatabase":
+        if self.embedding_model is None:
+            raise ValueError("Embedding model not set. Cannot build vector database without an embedding model.")
+        
         embeddings = await self.embedding_model.async_get_embeddings(list_of_text)
-        for text, embedding in zip(list_of_text, embeddings):
-            self.insert(text, np.array(embedding))
+        for i, (text, embedding) in enumerate(zip(list_of_text, embeddings)):
+            metadata = metadata_list[i] if metadata_list and i < len(metadata_list) else None
+            self.insert(text, np.array(embedding), metadata)
         return self
 
 
