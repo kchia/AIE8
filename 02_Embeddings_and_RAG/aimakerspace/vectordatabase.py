@@ -14,11 +14,71 @@ def cosine_similarity(vector_a: np.array, vector_b: np.array) -> float:
     return dot_product / (norm_a * norm_b)
 
 
+def euclidean_distance(vector_a: np.array, vector_b: np.array) -> float:
+    """
+    Computes the Euclidean distance between two vectors.
+    Returns the inverse (1 / (1 + distance)) to maintain higher-is-better semantics.
+    """
+    distance = np.linalg.norm(vector_a - vector_b)
+    # Return inverse for similarity semantics (higher = more similar)
+    return 1.0 / (1.0 + distance)
+
+
+def manhattan_distance(vector_a: np.array, vector_b: np.array) -> float:
+    """
+    Computes the Manhattan (L1) distance between two vectors.
+    Returns the inverse (1 / (1 + distance)) to maintain higher-is-better semantics.
+    """
+    distance = np.sum(np.abs(vector_a - vector_b))
+    # Return inverse for similarity semantics (higher = more similar)
+    return 1.0 / (1.0 + distance)
+
+
+def dot_product_similarity(vector_a: np.array, vector_b: np.array) -> float:
+    """
+    Computes the dot product similarity between two vectors.
+    Note: This assumes vectors are normalized or you want raw dot product.
+    """
+    return float(np.dot(vector_a, vector_b))
+
+
 class VectorDatabase:
-    def __init__(self, embedding_model: EmbeddingModel = None):
+    # Available distance metrics
+    DISTANCE_METRICS = {
+        'cosine': cosine_similarity,
+        'euclidean': euclidean_distance,
+        'manhattan': manhattan_distance,
+        'dot_product': dot_product_similarity
+    }
+    
+    def __init__(self, embedding_model: EmbeddingModel = None, default_distance_metric: str = 'cosine'):
         self.vectors = defaultdict(np.array)
         self.metadata = defaultdict(dict)  # Store metadata for each vector
         self.embedding_model = embedding_model  # Allow None for basic testing
+        
+        # Set default distance metric
+        if default_distance_metric not in self.DISTANCE_METRICS:
+            raise ValueError(f"Unknown distance metric: {default_distance_metric}. "
+                           f"Available metrics: {list(self.DISTANCE_METRICS.keys())}")
+        
+        self.default_distance_metric = default_distance_metric
+
+    def get_distance_function(self, distance_measure: Optional[Callable] = None) -> Callable:
+        """Get the distance function to use for calculations."""
+        if distance_measure is not None:
+            return distance_measure
+        return self.DISTANCE_METRICS[self.default_distance_metric]
+    
+    def set_default_distance_metric(self, metric_name: str) -> None:
+        """Set the default distance metric for this database."""
+        if metric_name not in self.DISTANCE_METRICS:
+            raise ValueError(f"Unknown distance metric: {metric_name}. "
+                           f"Available metrics: {list(self.DISTANCE_METRICS.keys())}")
+        self.default_distance_metric = metric_name
+    
+    def get_available_metrics(self) -> List[str]:
+        """Get list of available distance metrics."""
+        return list(self.DISTANCE_METRICS.keys())
 
     def insert(self, key: str, vector: np.array, metadata: Optional[Dict[str, Any]] = None) -> None:
         self.vectors[key] = vector
@@ -33,10 +93,13 @@ class VectorDatabase:
         self,
         query_vector: np.array,
         k: int,
-        distance_measure: Callable = cosine_similarity,
+        distance_measure: Optional[Callable] = None,
         filter_criteria: Optional[Dict[str, Any]] = None,
         return_metadata: bool = False,
     ):
+        # Get the appropriate distance function
+        distance_func = self.get_distance_function(distance_measure)
+        
         # Filter vectors based on metadata criteria
         filtered_items = []
         for key, vector in self.vectors.items():
@@ -47,7 +110,7 @@ class VectorDatabase:
             filtered_items.append((key, vector))
         
         scores = [
-            (key, distance_measure(query_vector, vector))
+            (key, distance_func(query_vector, vector))
             for key, vector in filtered_items
         ]
         sorted_scores = sorted(scores, key=lambda x: x[1], reverse=True)[:k]
@@ -60,7 +123,7 @@ class VectorDatabase:
         self,
         query_text: str,
         k: int,
-        distance_measure: Callable = cosine_similarity,
+        distance_measure: Optional[Callable] = None,
         return_as_text: bool = False,
         filter_criteria: Optional[Dict[str, Any]] = None,
         return_metadata: bool = False,

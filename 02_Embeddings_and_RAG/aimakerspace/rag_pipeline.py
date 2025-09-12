@@ -11,12 +11,13 @@ class EnhancedRetrievalAugmentedQAPipeline:
     
     def __init__(self, llm: ChatOpenAI, vector_db_retriever: VectorDatabase, 
                  response_style: str = "detailed", include_scores: bool = False,
-                 include_metadata: bool = True) -> None:
+                 include_metadata: bool = True, default_distance_metric: str = None) -> None:
         self.llm = llm
         self.vector_db_retriever = vector_db_retriever
         self.response_style = response_style
         self.include_scores = include_scores
         self.include_metadata = include_metadata
+        self.default_distance_metric = default_distance_metric
         
         # Enhanced RAG system template with metadata awareness
         self.rag_system_template = """You are a knowledgeable assistant that answers questions based strictly on provided context.
@@ -49,6 +50,7 @@ Please provide your answer based solely on the context above, citing sources usi
 
     def run_pipeline(self, user_query: str, k: int = 4, 
                     filter_criteria: Optional[Dict[str, Any]] = None,
+                    distance_metric: Optional[str] = None,
                     **system_kwargs) -> Dict[str, Any]:
         """
         Run the enhanced RAG pipeline with metadata support.
@@ -57,15 +59,29 @@ Please provide your answer based solely on the context above, citing sources usi
             user_query: The question to answer
             k: Number of context chunks to retrieve
             filter_criteria: Optional metadata filtering criteria
+            distance_metric: Distance metric to use ('cosine', 'euclidean', 'manhattan', 'dot_product')
             **system_kwargs: Additional system prompt parameters
             
         Returns:
             Dictionary containing response, context, metadata, and source information
         """
+        # Determine distance metric to use
+        metric_to_use = distance_metric or self.default_distance_metric
+        distance_func = None
+        
+        if metric_to_use:
+            if metric_to_use in self.vector_db_retriever.DISTANCE_METRICS:
+                distance_func = self.vector_db_retriever.DISTANCE_METRICS[metric_to_use]
+            else:
+                available_metrics = self.vector_db_retriever.get_available_metrics()
+                raise ValueError(f"Unknown distance metric: {metric_to_use}. "
+                               f"Available metrics: {available_metrics}")
+        
         # Retrieve relevant contexts with metadata
         context_results = self.vector_db_retriever.search_by_text(
             user_query, 
             k=k, 
+            distance_measure=distance_func,
             filter_criteria=filter_criteria,
             return_metadata=self.include_metadata
         )
@@ -162,3 +178,31 @@ Please provide your answer based solely on the context above, citing sources usi
             filter_criteria=filter_criteria if filter_criteria else None,
             return_metadata=True
         )
+    
+    def compare_distance_metrics(self, query: str, k: int = 3) -> Dict[str, List]:
+        """
+        Compare results using different distance metrics for the same query.
+        
+        Args:
+            query: Search query to test
+            k: Number of results per metric
+            
+        Returns:
+            Dictionary with metric names as keys and search results as values
+        """
+        available_metrics = self.vector_db_retriever.get_available_metrics()
+        comparison_results = {}
+        
+        for metric in available_metrics:
+            try:
+                results = self.vector_db_retriever.search_by_text(
+                    query,
+                    k=k,
+                    distance_measure=self.vector_db_retriever.DISTANCE_METRICS[metric],
+                    return_metadata=True
+                )
+                comparison_results[metric] = results
+            except Exception as e:
+                comparison_results[metric] = f"Error: {str(e)}"
+        
+        return comparison_results
