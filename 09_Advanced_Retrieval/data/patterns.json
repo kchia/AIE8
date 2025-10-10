@@ -1,0 +1,162 @@
+[
+  {
+    "id": "button",
+    "name": "Button",
+    "category": "Form Controls",
+    "description": "Primary action button component with variants for different emphasis levels and interactive states. Supports onClick handlers, disabled states, and multiple size options.",
+    "props": ["onClick", "variant", "size", "disabled", "children", "type", "ariaLabel"],
+    "keywords": ["click", "action", "submit", "CTA", "interactive", "primary", "secondary", "call-to-action", "form"]
+  },
+  {
+    "id": "input",
+    "name": "Input",
+    "category": "Form Controls",
+    "description": "Text input field component for collecting user text data. Supports validation, placeholder text, error states, and accessibility features.",
+    "props": ["value", "onChange", "placeholder", "type", "disabled", "error", "required", "ariaLabel"],
+    "keywords": ["text", "field", "form", "type", "entry", "textbox", "edit", "input-field"]
+  },
+  {
+    "id": "select",
+    "name": "Select",
+    "category": "Form Controls",
+    "description": "Dropdown selection component allowing users to choose one or multiple options from a list. Includes search functionality and keyboard navigation.",
+    "props": ["options", "value", "onChange", "multiple", "searchable", "placeholder", "disabled"],
+    "keywords": ["dropdown", "picker", "choice", "menu", "options", "combobox", "selector"]
+  },
+  {
+    "id": "checkbox",
+    "name": "Checkbox",
+    "category": "Form Controls",
+    "description": "Binary toggle control for boolean input. Supports checked, unchecked, and indeterminate states with accessibility labels.",
+    "props": ["checked", "onChange", "disabled", "indeterminate", "label", "ariaLabel"],
+    "keywords": ["toggle", "check", "tick", "boolean", "selection", "multi-select"]
+  },
+  {
+    "id": "radio",
+    "name": "Radio",
+    "category": "Form Controls",
+    "description": "Radio button component for mutually exclusive selections within a group. Part of radio button groups for single-choice scenarios.",
+    "props": ["checked", "onChange", "name", "value", "disabled", "label"],
+    "keywords": ["option", "choice", "group", "single", "exclusive", "selection"]
+  },
+  {
+    "id": "card",
+    "name": "Card",
+    "category": "Layout",
+    "description": "Container component for grouping related content with optional header, body, and footer sections. Supports elevation, borders, and interactive states.",
+    "props": ["children", "header", "footer", "elevated", "onClick", "hoverable"],
+    "keywords": ["container", "panel", "box", "content", "group", "section", "tile"]
+  },
+  {
+    "id": "modal",
+    "name": "Modal",
+    "category": "Overlays",
+    "description": "Dialog overlay component that appears on top of page content. Includes backdrop, close handlers, and focus trap for accessibility.",
+    "props": ["isOpen", "onClose", "title", "children", "size", "closeOnBackdrop"],
+    "keywords": ["dialog", "popup", "overlay", "lightbox", "window", "alert", "confirmation"]
+  },
+  {
+    "id": "tabs",
+    "name": "Tabs",
+    "category": "Navigation",
+    "description": "Tabbed navigation component for switching between different views or content sections. Supports controlled and uncontrolled modes.",
+    "props": ["tabs", "activeTab", "onChange", "orientation", "variant"],
+    "keywords": ["navigation", "switch", "panel", "tabbed", "sections", "content-switcher"]
+  },
+  {
+    "id": "badge",
+    "name": "Badge",
+    "category": "Data Display",
+    "description": "Small status indicator or label component for highlighting information. Supports colors, sizes, and positioning on other elements.",
+    "props": ["children", "variant", "color", "size", "dot"],
+    "keywords": ["label", "tag", "status", "indicator", "notification", "count", "chip"]
+  },
+  {
+    "id": "alert",
+    "name": "Alert",
+    "category": "Feedback",
+    "description": "Notification banner component for displaying important messages. Includes severity variants (info, success, warning, error) and dismissible option.",
+    "props": ["severity", "children", "onClose", "dismissible", "title"],
+    "keywords": ["notification", "message", "banner", "toast", "feedback", "warning", "error", "success"]
+  },
+  {
+    "id": "tooltip",
+    "name": "Tooltip",
+    "category": "Overlays",
+    "description": "Contextual information overlay that appears on hover or focus. Provides additional details without cluttering the interface.",
+    "props": ["content", "children", "placement", "delay", "trigger"],
+    "keywords": ["hint", "help", "info", "hover", "popup", "description"]
+  },
+  {
+    "id": "table",
+    "name": "Table",
+    "category": "Data Display",
+    "description": "Structured data grid component with sortable columns, pagination, and row selection. Supports custom cell renderers and responsive layouts.",
+    "props": ["columns", "data", "sortable", "pagination", "onRowClick", "selectable"],
+    "keywords": ["grid", "datagrid", "list", "rows", "columns", "data", "spreadsheet"]
+  },
+  {
+    "id": "spinner",
+    "name": "Spinner",
+    "category": "Feedback",
+    "description": "Loading indicator component showing indeterminate progress. Useful for async operations and data fetching states.",
+    "props": ["size", "color", "label"],
+    "keywords": ["loading", "progress", "wait", "loader", "busy", "processing"]
+  },
+  {
+    "id": "breadcrumb",
+    "name": "Breadcrumb",
+    "category": "Navigation",
+    "description": "Navigation aid showing the current page's location within the site hierarchy. Supports custom separators and link rendering.",
+    "props": ["items", "separator", "maxItems"],
+    "keywords": ["navigation", "path", "hierarchy", "location", "trail", "crumbs"]
+  },
+  {
+    "id": "avatar",
+    "name": "Avatar",
+    "category": "Data Display",
+    "description": "User profile image component with fallback to initials. Supports various sizes, shapes, and status indicators.",
+    "props": ["src", "alt", "size", "shape", "initials", "status"],
+    "keywords": ["profile", "image", "user", "picture", "photo", "icon"]
+  },
+  {
+    "id": "slider",
+    "name": "Slider",
+    "category": "Form Controls",
+    "description": "Range input component for selecting numerical values by dragging. Supports single and range selection with step intervals.",
+    "props": ["value", "onChange", "min", "max", "step", "marks", "disabled"],
+    "keywords": ["range", "track", "drag", "number", "volume", "control", "adjustment"]
+  },
+  {
+    "id": "switch",
+    "name": "Switch",
+    "category": "Form Controls",
+    "description": "Toggle switch component for binary on/off settings. Visually distinct from checkbox for immediate state changes.",
+    "props": ["checked", "onChange", "disabled", "label", "size"],
+    "keywords": ["toggle", "on-off", "switch", "settings", "enable", "disable"]
+  },
+  {
+    "id": "accordion",
+    "name": "Accordion",
+    "category": "Layout",
+    "description": "Collapsible content panels component for organizing information in expandable sections. Supports single or multiple panels open.",
+    "props": ["items", "expanded", "onChange", "allowMultiple"],
+    "keywords": ["collapse", "expand", "panel", "drawer", "disclosure", "sections"]
+  },
+  {
+    "id": "progress",
+    "name": "Progress",
+    "category": "Feedback",
+    "description": "Linear progress indicator showing determinate task completion percentage. Useful for upload, download, and multi-step processes.",
+    "props": ["value", "max", "label", "variant", "color"],
+    "keywords": ["bar", "loading", "completion", "percentage", "status", "tracker"]
+  },
+  {
+    "id": "menu",
+    "name": "Menu",
+    "category": "Navigation",
+    "description": "Contextual menu component with nested items, dividers, and action handlers. Triggered by buttons or right-click interactions.",
+    "props": ["items", "anchorEl", "open", "onClose", "onItemClick"],
+    "keywords": ["dropdown", "context", "options", "actions", "list", "navigation"]
+  }
+]

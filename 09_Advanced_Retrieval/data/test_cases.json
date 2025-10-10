@@ -1,0 +1,62 @@
+[
+  {
+    "id": "test_01",
+    "requirement": "Blue button with white text saying Submit",
+    "expected": "button",
+    "difficulty": "easy"
+  },
+  {
+    "id": "test_02",
+    "requirement": "Text field where users can type their email address",
+    "expected": "input",
+    "difficulty": "easy"
+  },
+  {
+    "id": "test_03",
+    "requirement": "Dropdown menu for selecting a country from a list",
+    "expected": "select",
+    "difficulty": "easy"
+  },
+  {
+    "id": "test_04",
+    "requirement": "Interactive element that shows additional information when you hover over it",
+    "expected": "tooltip",
+    "difficulty": "medium"
+  },
+  {
+    "id": "test_05",
+    "requirement": "A rectangular container with a shadow displaying a product image, title, and price",
+    "expected": "card",
+    "difficulty": "medium"
+  },
+  {
+    "id": "test_06",
+    "requirement": "Control that lets users accept terms and conditions by clicking a box",
+    "expected": "checkbox",
+    "difficulty": "medium"
+  },
+  {
+    "id": "test_07",
+    "requirement": "Visual indicator showing the upload is 65% complete with a horizontal bar",
+    "expected": "progress",
+    "difficulty": "medium"
+  },
+  {
+    "id": "test_08",
+    "requirement": "Navigation breadcrumb showing Home > Products > Electronics",
+    "expected": "breadcrumb",
+    "difficulty": "hard"
+  },
+  {
+    "id": "test_09",
+    "requirement": "Overlapping panels where clicking headers reveals content, used for FAQs",
+    "expected": "accordion",
+    "difficulty": "hard"
+  },
+  {
+    "id": "test_10",
+    "requirement": "Draggable control for adjusting volume from 0 to 100",
+    "expected": "slider",
+    "difficulty": "hard"
+  }
+]
