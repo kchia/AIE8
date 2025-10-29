@@ -5,8 +5,8 @@
 
 ## <h1 align="center" id="heading">Session 15: Build & Serve an A2A Endpoint for Our LangGraph Agent</h1>
 
-| 🤓 Pre-work | 📰 Session Sheet | ⏺️ Recording     | 🖼️ Slides        | 👨‍💻 Repo         | 📝 Homework      | 📁 Feedback       |
-|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|
+| 🤓 Pre-work | 📰 Session Sheet | ⏺️ Recording | 🖼️ Slides | 👨‍💻 Repo | 📝 Homework | 📁 Feedback |
+| :---------- | :--------------- | :----------- | :-------- | :------ | :---------- | :---------- |
 
 # A2A Protocol Implementation with LangGraph
 
@@ -30,7 +30,7 @@ graph TD
     C -->|"No"| E["🎯 Helpfulness Node<br/>(A2A Evaluation)"]
     D --> F["🔧 Execute Tools"]
     F --> G["📊 Tavily Search<br/>(Web Results)"]
-    F --> H["📚 ArXiv Search<br/>(Academic Papers)"]  
+    F --> H["📚 ArXiv Search<br/>(Academic Papers)"]
     F --> I["📄 RAG Retrieval<br/>(Document Search)"]
     G --> B
     H --> B
@@ -40,7 +40,7 @@ graph TD
     J -->|"No (N)"| L{"🔄 Loop Count<br/>< 10?"}
     L -->|"Yes"| B
     L -->|"No"| K
-    
+
     style A fill:#1e3a5f,stroke:#ffffff,stroke-width:3px,color:#ffffff
     style B fill:#4a148c,stroke:#ffffff,stroke-width:3px,color:#ffffff
     style C fill:#0d47a1,stroke:#ffffff,stroke-width:3px,color:#ffffff
@@ -80,13 +80,24 @@ uv run python app/test_client.py
 
 Build a LangGraph Graph to "use" your application.
 
-Do this by creating a Simple Agent that can make API calls to the 🤖Agent Node above through the A2A protocol. 
+Do this by creating a Simple Agent that can make API calls to the 🤖Agent Node above through the A2A protocol.
 
 ### ❓ Question #1:
 
 What are the core components of an `AgentCard`?
 
 ##### ✅ Answer:
+
+An `AgentCard` consists of 8 core components:
+
+1. **name** - The agent's identifier
+2. **description** - What the agent does
+3. **url** - The endpoint URL where the agent is accessible
+4. **version** - Semantic version of the agent
+5. **default_input_modes** - Supported input content types (e.g., text, images)
+6. **default_output_modes** - Supported output content types
+7. **capabilities** - Agent features like streaming and push notifications
+8. **skills** - Array of agent skills (with id, name, description, tags, examples)
 
 <br />
 
@@ -96,6 +107,18 @@ Why is A2A (and other such protocols) important in your own words?
 
 ##### ✅ Answer:
 
+A2A (Agent-to-Agent) and similar protocols are crucial for building the future of AI agent ecosystems for several key reasons:
+
+1. Protocols like A2A define common communication standards, allowing agents built with different frameworks (LangGraph, LlamaIndex, AutoGen) to seamlessly communicate with each other. Just like HTTP enables web browsers from different vendors to access websites, A2A enables agents from different developers to work together.
+
+2. Protocols enable agents to be treated as building blocks. An AgentCard exposes each agent's capabilities, skills, and input/output formats, allowing developers to easily discover and integrate existing specialized agents rather than rebuilding everything from scratch.
+
+3. As AI systems become more complex, we need agents to collaborate. A2A protocols facilitate these collaborations by providing structured communication patterns, allowing agents to delegate tasks, share capabilities, and work together to solve problems that exceed any single agent's expertise.
+
+4. The AgentCard system creates a "yellow pages" for agents, enabling automatic discovery of agents with specific capabilities. This opens up possibilities for agent marketplaces where users can find and integrate specialized agents.
+
+5. A2A supports streaming and push notifications, enabling real-time, interactive experiences where agents can provide continuous updates and maintain stateful conversations.
+
 <br /><br />
 
 <details>
@@ -103,11 +126,12 @@ Why is A2A (and other such protocols) important in your own words?
 
 Use a different Agent Framework to **test** your application.
 
-Do this by creating a Simple Agent that acts as different personas with different goals and have that Agent use your Agent through A2A. 
+Do this by creating a Simple Agent that acts as different personas with different goals and have that Agent use your Agent through A2A.
 
 Example:
 
 "You are an expert in Machine Learning, and you want to learn about what makes Kimi K2 so incredible. You are not satisfied with surface level answers, and you wish to have sources you can read to verify information."
+
 </details>
 
 ## 📁 Implementation Details
@@ -117,6 +141,7 @@ For detailed technical documentation, file structure, and implementation guides,
 **➡️ [app/README.md](./app/README.md)**
 
 This contains:
+
 - Complete file structure breakdown
 - Technical implementation details
 - Tool configuration guides
@@ -138,29 +163,28 @@ This contains:
 ## Main Homework Assignment
 
 Follow these steps to prepare and submit your homework assignment:
+
 1. Create a branch of your `AIE8` repo to track your changes. Example command: `git checkout -b s15-assignment`
 2. Complete the activity above
 3. Answer the questions above _in-line in this README.md file_
 4. Record a Loom video reviewing the Simple Agent you built for Activity #1 and the results.
 5. Commit, and push your changes to your `origin` repository. _NOTE: Do not merge it into your main branch._
 6. Make sure to include all of the following on your Homework Submission Form:
-    + The GitHub URL to the `15_A2A_LANGGRAPH` folder _on your assignment branch (not main)_
-    + The URL to your Loom Video
-    + Your Three Lessons Learned/Not Yet Learned
-    + The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
+   - The GitHub URL to the `15_A2A_LANGGRAPH` folder _on your assignment branch (not main)_
+   - The URL to your Loom Video
+   - Your Three Lessons Learned/Not Yet Learned
+   - The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
 
 ### OPTIONAL: 🚧 Advanced Build Assignment 🚧
+
 <details>
   <summary>(<i>Open this section for the submission instructions.</i>)</summary>
 
 Follow these steps to prepare and submit your homework assignment:
+
 1. Create a branch of your `AIE8` repo to track your changes. Example command: `git checkout -b s015-assignment`
 2. Complete the requirements for the Advanced Build
 3. Record a Loom video reviewing the agent you built and demostrating in action
 4. Commit, and push your changes to your `origin` repository. _NOTE: Do not merge it into your main branch._
-5. Make sure to include all of the following on your Homework Submission Form:
-    + The GitHub URL to the `15_A2A_LANGGRAPH` folder _on your assignment branch (not main)_
-    + The URL to your Loom Video
-    + Your Three Lessons Learned/Not Yet Learned
-    + The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
+5. Make sure to include all of the following on your Homework Submission Form: + The GitHub URL to the `15_A2A_LANGGRAPH` folder _on your assignment branch (not main)_ + The URL to your Loom Video + Your Three Lessons Learned/Not Yet Learned + The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
 </details>
