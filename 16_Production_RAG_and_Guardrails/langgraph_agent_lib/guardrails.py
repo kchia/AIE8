@@ -67,16 +67,36 @@ def create_guardrails_guard(
     try:
         # Topic restriction
         if valid_topics or invalid_topics:
-            guard = guard.use(
-                RestrictToTopic(
-                    valid_topics=valid_topics or [],
-                    invalid_topics=invalid_topics or [],
-                    disable_classifier=True,
-                    disable_llm=False,
-                    on_fail="exception"
+            try:
+                guard = guard.use(
+                    RestrictToTopic(
+                        valid_topics=valid_topics or [],
+                        invalid_topics=invalid_topics or [],
+                        disable_classifier=True,
+                        disable_llm=False,
+                        on_fail="exception"
+                    )
                 )
-            )
-            logger.debug("Topic restriction guard configured")
+                logger.debug("Topic restriction guard configured")
+            except Exception as e:
+                logger.warning(f"Topic restriction guard configuration failed: {e}")
+                # Try with only LLM enabled (disable classifier)
+                try:
+                    guard = guard.use(
+                        RestrictToTopic(
+                            valid_topics=valid_topics or [],
+                            invalid_topics=invalid_topics or [],
+                            disable_classifier=True,
+                            disable_llm=False,  # Keep LLM enabled
+                            on_fail="exception"
+                        )
+                    )
+                    logger.debug("Topic restriction guard configured with LLM enabled (classifier disabled)")
+                except Exception as e2:
+                    logger.warning(f"Topic restriction guard failed with LLM, trying without both: {e2}")
+                    # Last resort: skip topic restriction if both fail
+                    logger.error("Topic restriction guard not available - continuing without topic filtering")
+                    pass
         
         # Jailbreak detection
         if enable_jailbreak_detection:
@@ -208,6 +228,7 @@ def validate_output(
     guard: Guard,
     agent_response: str,
     context: Optional[str] = None,
+    original_prompt: Optional[str] = None,
     raise_on_failure: bool = True
 ) -> Dict[str, Any]:
     """Validate agent output using a Guardrails guard.
@@ -216,6 +237,7 @@ def validate_output(
         guard: The Guard instance to use for validation.
         agent_response: The agent's response to validate.
         context: Optional context for factuality checking.
+        original_prompt: Optional original user prompt/query for factuality checking.
         raise_on_failure: Whether to raise an exception on validation failure.
             If False, returns validation result. Default: True.
         
@@ -226,9 +248,15 @@ def validate_output(
         RuntimeError: If validation fails and raise_on_failure is True.
     """
     try:
-        # For factuality guards, include context if provided
+        # For factuality guards (LlmRagEvaluator), include context and original_prompt
+        metadata = {}
         if context:
-            result = guard.validate(agent_response, metadata={"context": context})
+            metadata["context"] = context
+        if original_prompt:
+            metadata["original_prompt"] = original_prompt
+        
+        if metadata:
+            result = guard.validate(agent_response, metadata=metadata)
         else:
             result = guard.validate(agent_response)
         
@@ -314,9 +342,18 @@ def create_guardrails_node(
             elif isinstance(last_message, AIMessage) and output_guard:
                 # Validate agent output
                 logger.debug("Validating agent output with guardrails")
+                # Try to extract original prompt from messages for factuality checks
+                original_prompt = None
+                if len(messages) > 1:
+                    for msg in reversed(messages):
+                        if isinstance(msg, HumanMessage):
+                            original_prompt = msg.content
+                            break
+                
                 result = validate_output(
                     output_guard,
                     last_message.content,
+                    original_prompt=original_prompt,
                     raise_on_failure=strict_mode
                 )
                 validation_results.append({
